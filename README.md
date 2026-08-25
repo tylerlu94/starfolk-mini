@@ -14,6 +14,14 @@ Development happens on the remote machine rather than on the user's computer.
 - Reconnect to the same running agent session and terminal history.
 - Delete the devbox when the work is finished.
 
+## Architecture
+
+The local CLI calls a hosted backend that stores metadata in PostgreSQL and
+provisions EC2 devboxes. Each devbox uses Amazon Linux 2023, an encrypted root
+volume, and `cloud-init` to install its tools and check out the requested
+commit. The CLI connects directly over SSH, and Codex runs inside `tmux` so its
+session can be disconnected and reconnected.
+
 ## Install
 
 SFKM currently installs from a checkout of this repository and requires Node.js
@@ -90,15 +98,23 @@ Delete the devbox when finished:
 sfkm devbox delete <devbox-id>
 ```
 
-## Current limitations
+## Intentional scope decisions and extension paths
 
-- Only public GitHub repositories are supported.
-- A repository URL and branch must be supplied explicitly.
-- One preconfigured development environment and one Codex agent are available.
-- Codex authentication is completed separately on each new devbox.
-- Devboxes are created on demand, so startup is not instantaneous.
-- Agent sessions remain reconnectable only while their original devbox and
-  session process are still running.
-- Stop, restart, snapshots, automatic suspension, and warm devboxes are not
-  currently available.
-- SSH access must be prepared for the demo user's current network before use.
+The prototype intentionally focuses on one validated end-to-end path:
+
+- Create requires a public GitHub repository and branch and uses one default
+  environment. Private repositories and versioned environments could be added
+  through GitHub authentication and environment create/select APIs.
+- Devboxes use a fixed Amazon Linux 2023 image with `cloud-init`. Pre-baked
+  images and warm pools could reduce startup time.
+- One pinned Codex CLI, its default model, and immediate attachment are
+  supported. An agent adapter plus `--agent`, `--model`, and `--no-connect`
+  options could extend this without changing the session model.
+- Codex authentication is completed separately on each devbox. Environment-
+  scoped credentials could remove this repeated setup.
+- Sessions persist only while their devbox and process remain running. Stop,
+  restart, snapshots, automatic suspension, and durable recovery are deferred.
+- SSH uses EC2 Instance Connect for short-lived keys, but an operator must
+  restrict the demo security group's port 22 rule to the user's current public
+  IPv4 address (`/32`). Private devboxes behind an EC2 Instance Connect
+  Endpoint or managed gateway would remove this requirement.
