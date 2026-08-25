@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LaunchTaggedSFKMDemoInstances",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "sfkm-demo"
+        },
+        "ForAllValues:StringEquals": {
+          "aws:TagKeys": [
+            "Project",
+            "SFKMDevboxId",
+            "EnvironmentVersion",
+            "Owner"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "ReadAndTerminateTaggedSFKMDemoInstances",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeVolumes",
+        "ec2:TerminateInstances"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "PushEphemeralSshKeys",
+      "Effect": "Allow",
+      "Action": "ec2-instance-connect:SendSSHPublicKey",
+      "Resource": "arn:aws:ec2:*:*:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:osuser": "ec2-user"
+        }
+      }
+    }
+  ]
+}

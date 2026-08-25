@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Local-only project notes
+/AGENTS.md
+/docs/parallel-workstreams.md
+/docs/sfkm-design.md
+/docs/sfkm-implementation-plan.md

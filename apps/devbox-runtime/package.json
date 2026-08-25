@@ -1,0 +1,21 @@
+{
+  "name": "@sfkm/devbox-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "sfkm-devbox-runtime": "./dist/sfkm-devbox-runtime.cjs"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run --root ../.. apps/devbox-runtime",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@sfkm/contracts": "*",
+    "commander": "^15.0.0",
+    "pino": "^10.3.1",
+    "zod": "^4.4.3"
+  }
+}

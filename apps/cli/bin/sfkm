@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+launcher_path=$0
+while [ -L "$launcher_path" ]; do
+  launcher_directory=$(CDPATH= cd -P -- "$(dirname -- "$launcher_path")" && pwd)
+  link_target=$(readlink "$launcher_path")
+  case "$link_target" in
+    /*) launcher_path=$link_target ;;
+    *) launcher_path=$launcher_directory/$link_target ;;
+  esac
+done
+
+launcher_directory=$(CDPATH= cd -P -- "$(dirname -- "$launcher_path")" && pwd)
+repository_root=$(CDPATH= cd -- "$launcher_directory/../../.." && pwd)
+tsx_loader=$repository_root/node_modules/tsx/dist/loader.mjs
+cli_entrypoint=$repository_root/apps/cli/src/index.ts
+
+if ! command -v node >/dev/null 2>&1; then
+  printf '%s\n' "SFKM requires Node.js 24." >&2
+  exit 1
+fi
+if [ ! -f "$tsx_loader" ]; then
+  printf '%s\n' "SFKM dependencies are missing. Run: $repository_root/apps/cli/install.sh" >&2
+  exit 1
+fi
+
+exec node --import "$tsx_loader" "$cli_entrypoint" "$@"
